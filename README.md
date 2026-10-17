@@ -1,58 +1,104 @@
-<div align="center">
+# Video to OLED Bitmap Converter
 
-# 🎬 OLED Video Converter
+Convert any video into a ready-to-compile C header (`.h`) full of 128×64 monochrome frames for SSD1306 OLED displays.
 
-**Turn any video into a 128×64 monochrome animation for SSD1306 OLED displays.**
+This project extracts frames from a video, converts each one into compact bitmap data (8 pixels per byte, MSB first), and packs everything into a single `PROGMEM`-friendly header file that you can drop straight into an ESP32 / Arduino sketch. A simple Gradio web UI handles the whole process in your browser.
 
-Upload a video in your browser, tweak a few settings, and download a ready-to-compile
-`.h` header for your ESP32 or Arduino project — no coding required.
+> Perfect for playing video clips on a 0.96" SSD1306 OLED with an ESP32 — no coding required.
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)
-![Gradio](https://img.shields.io/badge/UI-Gradio-FF4E75?logo=gradio&logoColor=white)
-![OpenCV](https://img.shields.io/badge/Video-OpenCV-5C3EE8?logo=opencv&logoColor=white)
-![Display](https://img.shields.io/badge/OLED-128x64-2DD2B3)
+* * *
 
-</div>
+## ✨ Features
 
----
+- Convert any video format that OpenCV supports (MP4, AVI, MOV, ...)
+- Simple web UI powered by Gradio — runs in your browser
+- Adjustable max frames, frame skip, B/W threshold and color inversion
+- Single `PROGMEM`-ready `.h` file with all frames + pointer array
+- Compatible with `Adafruit_GFX::drawBitmap()` and U8g2
+- Live progress bar during conversion
 
-## How it works
+* * *
+
+## 📁 Project Structure
 
 ```
-🎬 your video  ──▶  🖥️ web app  ──▶  📄 oled_frames.h  ──▶  📺 ESP32 + SSD1306
+python-project/
+├── converter.py     # Main converter app (Gradio)
+├── requirements.txt # Python dependencies
+├── .gitignore
+└── README.md
 ```
 
-1. Each frame is resized to **128×64** and converted to black & white with a threshold you control.
-2. Every frame is packed into **1024 bytes** (8 pixels per byte, MSB first) — the exact format
-   [`Adafruit_GFX::drawBitmap()`](https://learn.adafruit.com/monochrome-oled-breakouts) expects.
-3. All frames are written into a single PROGMEM-ready header file with a pointer array.
+* * *
 
-## Quick start
+## ⚙️ Prerequisites
 
-```bash
+- Python 3.8+
+- pip
+
+* * *
+
+## 🚀 Install
+
+```
 git clone https://github.com/erfan0086/python-project.git
 cd python-project
+
 pip install -r requirements.txt
-python app.py
 ```
 
-Open **http://127.0.0.1:7860**, drop in a video, hit **Convert** and download the `.h` file. 🎉
+* * *
 
-## Settings
+## ▶️ Run
 
-| Setting | What it does | Tip |
-|---|---|---|
-| **Max frames** | How many frames to extract | 20–60 is plenty for PROGMEM |
-| **Frame skip** | Keep 1 frame out of every N | `2` ≈ half the frames |
-| **B/W threshold** | Cutoff between black and white | Raise it if the video looks all white |
-| **Invert** | Swap black ↔ white | Useful for dark scenes |
+```
+python converter.py
+```
 
-## Play it on an ESP32
+Then open **http://127.0.0.1:7860** in your browser:
 
-Copy the downloaded file to your sketch folder as `oled_frames.h`, install the
-**Adafruit SSD1306** and **Adafruit GFX** libraries, then:
+1. Upload a video
+2. Set the options
+3. Hit **Convert** and download the generated `.h` file
 
-```cpp
+* * *
+
+## 🔧 Settings
+
+Available in the web UI:
+
+| Parameter | Description |
+| --- | --- |
+| `Max frames` | Maximum number of frames to extract (20–60 fits well in flash) |
+| `Frame skip` | Keep 1 frame out of every N (`2` = half the frames) |
+| `B/W threshold` | Cutoff value between black and white pixels (50–200) |
+| `Invert colors` | Swap black ↔ white, useful for dark scenes |
+
+* * *
+
+## 📦 Output Format
+
+Each 128×64 frame is packed into 1024 bytes (8 pixels per byte, row-major, MSB first) — exactly the layout `Adafruit_GFX::drawBitmap()` expects:
+
+```
+static const unsigned char PROGMEM frame_0[] = {
+  0xFF, 0x81, 0xA5, 0x81, ...
+};
+
+const unsigned char* const frames[] PROGMEM = {
+  frame_0,
+  frame_1,
+  ...
+};
+```
+
+* * *
+
+## 📺 Play It on an ESP32
+
+Copy the downloaded file to your sketch folder as `oled_frames.h`, install the **Adafruit SSD1306** and **Adafruit GFX** libraries, then:
+
+```
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -74,12 +120,19 @@ void loop() {
 }
 ```
 
-**Wiring:** `VCC → 3V3` · `GND → GND` · `SDA → GPIO21` · `SCL → GPIO22`
+Wiring: `VCC → 3V3` · `GND → GND` · `SDA → GPIO21` · `SCL → GPIO22`
 
----
+* * *
 
-<div align="center">
+## 📊 Status Output
 
-Made with ❤️ and a tiny 128×64 OLED · If you find this useful, give it a ⭐
+After conversion the app prints a summary:
 
-</div>
+```
+✅ Done!
+
+• Total frames: 40
+• Resolution: 128×64
+• Source FPS: 30.0
+• Your .h file is ready to download
+```
