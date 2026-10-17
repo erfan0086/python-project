@@ -1,39 +1,28 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="OLED Video Converter — Banner" width="100%">
-
 # 🎬 OLED Video Converter
 
-**تبدیل ویدیو به انیمیشنِ نمایشگر OLED ۱۲۸×۶۴ — برای ESP32 و Arduino**
+**Turn any video into a 128×64 monochrome OLED animation for ESP32 & Arduino.**
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Gradio](https://img.shields.io/badge/Gradio-6-FF4E75?logo=gradio&logoColor=white)](https://www.gradio.app/)
-[![OpenCV](https://img.shields.io/badge/OpenCV-5-5C3EE8?logo=opencv&logoColor=white)](https://opencv.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-2DD2B3)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](../../pulls)
+Upload a video → tweak the settings → download a ready-to-compile `.h` file. No coding required.
 
-ویدیو آپلود کن ⏵ تنظیمات رو بچین ⏵ فایل `.h` رو دانلود کن ⏵ روی OLED پخشش کن ✨
+![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)
+![Gradio](https://img.shields.io/badge/Gradio-Web%20UI-FF4E75?logo=gradio&logoColor=white)
+![OpenCV](https://img.shields.io/badge/OpenCV-Video%20Processing-5C3EE8?logo=opencv&logoColor=white)
 
 </div>
 
 ---
 
-<div dir="rtl">
+## ✨ Features
 
-## ✨ چرا این ابزار؟
+- 🎥 **Any video format** — MP4, AVI, MOV... anything OpenCV can read
+- ⚙️ **Full control** — frame count, frame skip, B/W threshold, color inversion
+- 📦 **Single header output** — all frames packed into one PROGMEM-ready `.h` file
+- 🔌 **Plug & play** — works directly with `Adafruit_GFX::drawBitmap()` and U8g2
+- 🌐 **Simple web UI** — powered by Gradio, runs in your browser
 
-می‌خوای روی نمایشگر کوچولوی OLED ۰.۹۶ اینچی‌ات ویدیو پخش کنی؟ این ابزار دقیقاً همون کار رو می‌کنه:
-ویدیوی ورودی رو به **فریم‌های بیت‌مپ تک‌رنگ** با فرمت استاندارد تبدیل می‌کنه و یک فایل هدر `C/C++` آماده‌ی آپلود بهت تحویل می‌ده — بدون حتی یک خط کدنویسی!
-
-## 🖼️ پیش‌نمایش خروجی واقعی
-
-این تصویر، خروجیِ واقعی خود ابزار از یک ویدیوی نمونه است (فریم‌های ۱۲۸×۶۴، هر فریم ۱۰۲۴ بایت):
-
-<p align="center">
-  <img src="assets/oled_preview.png" alt="پیش‌نمایش فریم‌های خروجی روی OLED" width="100%">
-</p>
-
-## 🚀 اجرای سریع
+## 🚀 Getting Started
 
 ```bash
 git clone https://github.com/erfan0086/python-project.git
@@ -42,85 +31,72 @@ pip install -r requirements.txt
 python app.py
 ```
 
-بعدش فقط مرورگر رو باز کن → `http://127.0.0.1:7860` 🎉
+Then open **http://127.0.0.1:7860** in your browser. That's it! 🎉
 
-> 💡 اگه خواستی لینک عمومی هم بگیری: `GRADIO_SHARE=1 python app.py`
+## ⚙️ Settings
 
-## ⚙️ تنظیمات
-
-| تنظیم | توضیح | پیشنهاد |
+| Option | Description | Tip |
 |---|---|---|
-| 🎞️ حداکثر تعداد فریم | چند فریم استخراج بشه | ۲۰ تا ۶۰ فریم |
-| ⏩ رد کردن فریم (Frame Skip) | از هر N فریم، فقط یکی برداشته می‌شه | ویدیوی عادی: `2` |
-| 🎚️ آستانه سیاه‌وسفید (Threshold) | نقطه‌ی جدایی سیاه از سفید | پس‌زمینه‌ی روشن: بالاتر |
-| 🔄 معکوس کردن رنگ (Invert) | سیاه ↔ سفید | برای پس‌زمینه‌ی تیره |
+| **Max frames** | Number of frames to extract | 20–60 works well |
+| **Frame skip** | Keep 1 out of every N frames | `2` for normal videos |
+| **B/W threshold** | Cutoff between black & white pixels | Raise it for bright scenes |
+| **Invert** | Swap black ↔ white | Great for dark backgrounds |
 
-## 🔌 استفاده روی ESP32 در ۳ قدم
+## 🔌 Using the Output on ESP32
 
-۱. فایل دانلودشده رو با نام **`oled_frames.h`** کنار اسکچ Arduino کپی کن.
-۲. اسکچ آماده‌ی [`examples/ESP32_OLED_Player.ino`](examples/ESP32_OLED_Player.ino) رو باز کن (فقط کتابخانه‌های `Adafruit SSD1306` و `Adafruit GFX` لازمه).
-۳. آپلود کن و لذت ببر! 🎉
-
-**سیم‌کشی (I2C):** `VCC → 3V3` · `GND → GND` · `SDA → GPIO21` · `SCL → GPIO22`
-
-> 💡 سرعت پخش با ثابت `FRAME_DELAY_MS` داخل اسکچ قابل تغییره (۱۰۰ ≈ ۱۰ FPS).
-
-## 🧩 چه چیزی تحویل می‌گیری؟
-
-فایل `.h` تولیدشده شامل همه‌ی فریم‌ها + آرایه‌ی اشاره‌گرهاست و مستقیم با `display.drawBitmap(...)` کتابخانه‌ی Adafruit_GFX کار می‌کنه. یه نمونه‌ی واقعی هم اینجاست: [`examples/sample_output/oled_frames_sample.h`](examples/sample_output/oled_frames_sample.h)
+1. Save the downloaded file as `oled_frames.h` next to your Arduino sketch.
+2. Install the **Adafruit SSD1306** and **Adafruit GFX** libraries.
+3. Play the animation:
 
 ```cpp
-// فرمت خروجی: ردیفی، ۸ پیکسل در هر بایت، MSB اول
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "oled_frames.h"
+
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+void setup() {
+  Wire.begin(21, 22);  // SDA, SCL
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+}
+
+void loop() {
+  for (int i = 0; i < TOTAL_FRAMES; i++) {
+    display.drawBitmap(0, 0, frames[i], 128, 64, SSD1306_WHITE);
+    display.display();
+    delay(100);  // ~10 FPS
+  }
+}
+```
+
+**Wiring:** `VCC → 3V3` · `GND → GND` · `SDA → GPIO21` · `SCL → GPIO22`
+
+## 📦 Output Format
+
+Each 128×64 frame is packed into **1024 bytes** (row-major, 8 pixels per byte, MSB first) — exactly what `drawBitmap()` expects:
+
+```cpp
 static const unsigned char PROGMEM frame_0[] = {
-  0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, ...
+  0xFF, 0x81, 0xA5, 0x81, ...
 };
-const unsigned char* const frames[] PROGMEM = { frame_0, frame_1, ... };
+
+const unsigned char* const frames[] PROGMEM = { frame_0, frame_1, /* ... */ };
 ```
 
-## 📁 ساختار پروژه
+## 📁 Project Structure
 
 ```
-📦 python-project
-├── 🐍 app.py                        ← اپلیکیشن Gradio (قلب پروژه)
-├── 📋 requirements.txt
-├── 🖼️ assets/
-│   ├── banner.png                   ← بنر پروژه
-│   └── oled_preview.png             ← پیش‌نمایش خروجی واقعی
-├── 📂 examples/
-│   ├── 🔌 ESP32_OLED_Player.ino     ← اسکچ آماده‌ی پخش روی ESP32
-│   └── 📂 sample_output/
-│       └── 📄 oled_frames_sample.h  ← نمونه‌ی خروجی واقعی
-├── 📜 LICENSE
-└── 📖 README.md
+python-project/
+├── app.py              # Gradio web app
+├── requirements.txt    # Dependencies
+└── README.md
 ```
-
-</div>
-
----
-
-## 🇬🇧 English
-
-**Turn any video into a 128×64 monochrome OLED animation for ESP32 / Arduino.**
-Upload a video → tune the settings → download a ready-to-compile `.h` header — zero coding required.
-
-### Quick Start
-```bash
-pip install -r requirements.txt
-python app.py        # → http://127.0.0.1:7860
-```
-
-### How it works
-1. Frames are resized to **128×64** and binarized with a configurable threshold (optional invert).
-2. Each frame is packed into **1024 bytes** — row-major, 8 pixels per byte, MSB-first — exactly the format `Adafruit_GFX::drawBitmap()` expects.
-3. All frames + a pointer array are written to a single **PROGMEM-safe header file**.
-
-### Play it on ESP32
-Copy the downloaded file as `oled_frames.h` next to [`examples/ESP32_OLED_Player.ino`](examples/ESP32_OLED_Player.ino), install the *Adafruit SSD1306* + *GFX* libraries, and upload. Wiring: `SDA→GPIO21`, `SCL→GPIO22`. See the [Persian guide above](#-چرا-این-ابزار) for full details.
 
 ---
 
 <div align="center">
 
-ساخته‌شده با ❤️ و کمی نورِ OLED — if this helped you, a ⭐ would make the pixels glow brighter!
+Made with ❤️ and a tiny 128×64 OLED — if you like it, give it a ⭐!
 
 </div>
