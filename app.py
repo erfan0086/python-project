@@ -2,9 +2,10 @@ import gradio as gr
 import cv2
 import numpy as np
 import tempfile
-import os
+
 
 def frame_to_oled_bitmap(frame, width=128, height=64, threshold=128, invert=False):
+    """Convert a BGR frame into a list of bytes (8 pixels per byte, MSB first)."""
     resized = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
     _, binary = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
@@ -83,7 +84,7 @@ def process_video(video_path, max_frames, frame_skip, threshold, invert, progres
         temp_file.write(f"static const unsigned char PROGMEM frame_{i}[] = {{\n")
 
         for j in range(0, len(bitmap), 16):
-            line = bitmap[j:j+16]
+            line = bitmap[j:j + 16]
             hex_values = ", ".join(f"0x{b:02X}" for b in line)
             temp_file.write(f"  {hex_values},\n")
 
@@ -108,7 +109,8 @@ def process_video(video_path, max_frames, frame_skip, threshold, invert, progres
 
 
 with gr.Blocks(title="OLED Video to Bitmap Converter") as demo:
-    gr.Markdown("# 🎬 Video → OLED Bitmap Converter\nUpload a video → tweak the settings → download a ready-to-use `.h` file for your ESP32")
+    gr.Markdown("# 🎬 Video → OLED Bitmap Converter\n"
+                "Upload a video → tweak the settings → download a ready-to-use `.h` file for your ESP32")
 
     with gr.Row():
         with gr.Column():
@@ -132,4 +134,4 @@ with gr.Blocks(title="OLED Video to Bitmap Converter") as demo:
     )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(server_name="0.0.0.0", server_port=7860)

@@ -2,27 +2,32 @@
 
 # 🎬 OLED Video Converter
 
-**Turn any video into a 128×64 monochrome OLED animation for ESP32 & Arduino.**
+**Turn any video into a 128×64 monochrome animation for SSD1306 OLED displays.**
 
-Upload a video → tweak the settings → download a ready-to-compile `.h` file. No coding required.
+Upload a video in your browser, tweak a few settings, and download a ready-to-compile
+`.h` header for your ESP32 or Arduino project — no coding required.
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)
-![Gradio](https://img.shields.io/badge/Gradio-Web%20UI-FF4E75?logo=gradio&logoColor=white)
-![OpenCV](https://img.shields.io/badge/OpenCV-Video%20Processing-5C3EE8?logo=opencv&logoColor=white)
+![Gradio](https://img.shields.io/badge/UI-Gradio-FF4E75?logo=gradio&logoColor=white)
+![OpenCV](https://img.shields.io/badge/Video-OpenCV-5C3EE8?logo=opencv&logoColor=white)
+![Display](https://img.shields.io/badge/OLED-128x64-2DD2B3)
 
 </div>
 
 ---
 
-## ✨ Features
+## How it works
 
-- 🎥 **Any video format** — MP4, AVI, MOV... anything OpenCV can read
-- ⚙️ **Full control** — frame count, frame skip, B/W threshold, color inversion
-- 📦 **Single header output** — all frames packed into one PROGMEM-ready `.h` file
-- 🔌 **Plug & play** — works directly with `Adafruit_GFX::drawBitmap()` and U8g2
-- 🌐 **Simple web UI** — powered by Gradio, runs in your browser
+```
+🎬 your video  ──▶  🖥️ web app  ──▶  📄 oled_frames.h  ──▶  📺 ESP32 + SSD1306
+```
 
-## 🚀 Getting Started
+1. Each frame is resized to **128×64** and converted to black & white with a threshold you control.
+2. Every frame is packed into **1024 bytes** (8 pixels per byte, MSB first) — the exact format
+   [`Adafruit_GFX::drawBitmap()`](https://learn.adafruit.com/monochrome-oled-breakouts) expects.
+3. All frames are written into a single PROGMEM-ready header file with a pointer array.
+
+## Quick start
 
 ```bash
 git clone https://github.com/erfan0086/python-project.git
@@ -31,22 +36,21 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Then open **http://127.0.0.1:7860** in your browser. That's it! 🎉
+Open **http://127.0.0.1:7860**, drop in a video, hit **Convert** and download the `.h` file. 🎉
 
-## ⚙️ Settings
+## Settings
 
-| Option | Description | Tip |
+| Setting | What it does | Tip |
 |---|---|---|
-| **Max frames** | Number of frames to extract | 20–60 works well |
-| **Frame skip** | Keep 1 out of every N frames | `2` for normal videos |
-| **B/W threshold** | Cutoff between black & white pixels | Raise it for bright scenes |
-| **Invert** | Swap black ↔ white | Great for dark backgrounds |
+| **Max frames** | How many frames to extract | 20–60 is plenty for PROGMEM |
+| **Frame skip** | Keep 1 frame out of every N | `2` ≈ half the frames |
+| **B/W threshold** | Cutoff between black and white | Raise it if the video looks all white |
+| **Invert** | Swap black ↔ white | Useful for dark scenes |
 
-## 🔌 Using the Output on ESP32
+## Play it on an ESP32
 
-1. Save the downloaded file as `oled_frames.h` next to your Arduino sketch.
-2. Install the **Adafruit SSD1306** and **Adafruit GFX** libraries.
-3. Play the animation:
+Copy the downloaded file to your sketch folder as `oled_frames.h`, install the
+**Adafruit SSD1306** and **Adafruit GFX** libraries, then:
 
 ```cpp
 #include <Wire.h>
@@ -57,7 +61,7 @@ Then open **http://127.0.0.1:7860** in your browser. That's it! 🎉
 Adafruit_SSD1306 display(128, 64, &Wire, -1);
 
 void setup() {
-  Wire.begin(21, 22);  // SDA, SCL
+  Wire.begin(21, 22);                      // SDA, SCL
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
@@ -65,38 +69,17 @@ void loop() {
   for (int i = 0; i < TOTAL_FRAMES; i++) {
     display.drawBitmap(0, 0, frames[i], 128, 64, SSD1306_WHITE);
     display.display();
-    delay(100);  // ~10 FPS
+    delay(100);                            // ~10 FPS
   }
 }
 ```
 
 **Wiring:** `VCC → 3V3` · `GND → GND` · `SDA → GPIO21` · `SCL → GPIO22`
 
-## 📦 Output Format
-
-Each 128×64 frame is packed into **1024 bytes** (row-major, 8 pixels per byte, MSB first) — exactly what `drawBitmap()` expects:
-
-```cpp
-static const unsigned char PROGMEM frame_0[] = {
-  0xFF, 0x81, 0xA5, 0x81, ...
-};
-
-const unsigned char* const frames[] PROGMEM = { frame_0, frame_1, /* ... */ };
-```
-
-## 📁 Project Structure
-
-```
-python-project/
-├── app.py              # Gradio web app
-├── requirements.txt    # Dependencies
-└── README.md
-```
-
 ---
 
 <div align="center">
 
-Made with ❤️ and a tiny 128×64 OLED — if you like it, give it a ⭐!
+Made with ❤️ and a tiny 128×64 OLED · If you find this useful, give it a ⭐
 
 </div>
